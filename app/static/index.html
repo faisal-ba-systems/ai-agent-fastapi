@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Automation Agent</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      background: #1a1d27;
+      border: 1px solid #2d3148;
+      border-radius: 16px;
+      padding: 40px;
+      width: 100%;
+      max-width: 720px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #f1f5f9;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #94a3b8;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    textarea {
+      width: 100%;
+      height: 130px;
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 10px;
+      color: #e2e8f0;
+      font-size: 15px;
+      font-family: inherit;
+      padding: 14px 16px;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    textarea:focus { border-color: #6366f1; }
+    textarea::placeholder { color: #475569; }
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .iter-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #64748b;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    input[type="number"] {
+      width: 68px;
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 8px;
+      color: #e2e8f0;
+      font-size: 14px;
+      padding: 8px 10px;
+      outline: none;
+      text-align: center;
+    }
+
+    input[type="number"]:focus { border-color: #6366f1; }
+
+    button {
+      margin-left: auto;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 11px 28px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      white-space: nowrap;
+    }
+
+    button:hover { opacity: 0.9; }
+    button:active { transform: scale(0.98); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .divider {
+      border: none;
+      border-top: 1px solid #2d3148;
+      margin: 28px 0;
+    }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .result-header span { font-size: 13px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .badges { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .badge {
+      font-size: 12px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+
+    .badge-iter { background: #1e3a5f; color: #60a5fa; }
+    .badge-tools { background: #2d1f5e; color: #a78bfa; }
+
+    .result-box {
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 10px;
+      padding: 16px;
+      font-size: 14px;
+      line-height: 1.7;
+      color: #cbd5e1;
+      white-space: pre-wrap;
+      word-break: break-word;
+      min-height: 60px;
+    }
+
+    .tools-list {
+      margin-top: 14px;
+    }
+
+    .tools-list label { margin-bottom: 6px; }
+
+    .tool-item {
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      color: #a78bfa;
+      margin-bottom: 6px;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-box {
+      background: #2d0f0f;
+      border: 1px solid #7f1d1d;
+      border-radius: 10px;
+      padding: 14px 16px;
+      color: #fca5a5;
+      font-size: 14px;
+    }
+
+    #output { display: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">
+      <div class="logo-icon">⚡</div>
+      <div>
+        <h1>AI Automation Agent</h1>
+        <div class="subtitle">Powered by Groq · LLaMA 3.3 70B</div>
+      </div>
+    </div>
+
+    <label for="task">Task</label>
+    <textarea id="task" placeholder="e.g. List all files in the current directory and write a summary to output/summary.txt"></textarea>
+
+    <div class="row">
+      <div class="iter-wrap">
+        Max iterations
+        <input type="number" id="max-iter" value="10" min="1" max="50" />
+      </div>
+      <button id="run-btn" onclick="runAgent()">Run Agent</button>
+    </div>
+
+    <div id="output">
+      <hr class="divider" />
+
+      <div id="error-section" style="display:none;">
+        <div class="error-box" id="error-msg"></div>
+      </div>
+
+      <div id="result-section" style="display:none;">
+        <div class="result-header">
+          <span>Result</span>
+          <div class="badges">
+            <span class="badge badge-iter" id="iter-badge"></span>
+            <span class="badge badge-tools" id="tools-badge"></span>
+          </div>
+        </div>
+        <div class="result-box" id="result-text"></div>
+
+        <div class="tools-list" id="tools-section" style="display:none;">
+          <label>Tools Used</label>
+          <div id="tools-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function runAgent() {
+      const task = document.getElementById('task').value.trim();
+      if (!task) { alert('Please enter a task.'); return; }
+
+      const maxIter = parseInt(document.getElementById('max-iter').value) || 10;
+      const btn = document.getElementById('run-btn');
+      const output = document.getElementById('output');
+      const errorSection = document.getElementById('error-section');
+      const resultSection = document.getElementById('result-section');
+      const toolsSection = document.getElementById('tools-section');
+
+      // Loading state
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>Running...';
+      output.style.display = 'block';
+      errorSection.style.display = 'none';
+      resultSection.style.display = 'none';
+
+      try {
+        const res = await fetch('/run', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ task, max_iterations: maxIter }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          errorSection.style.display = 'block';
+          document.getElementById('error-msg').textContent = data.detail || 'An error occurred.';
+        } else {
+          resultSection.style.display = 'block';
+          document.getElementById('result-text').textContent = data.result;
+          document.getElementById('iter-badge').textContent = `${data.iterations} iteration${data.iterations !== 1 ? 's' : ''}`;
+          document.getElementById('tools-badge').textContent = `${data.tool_calls_made.length} tool call${data.tool_calls_made.length !== 1 ? 's' : ''}`;
+
+          const toolsList = document.getElementById('tools-list');
+          toolsList.innerHTML = '';
+          if (data.tool_calls_made.length > 0) {
+            toolsSection.style.display = 'block';
+            data.tool_calls_made.forEach(t => {
+              const div = document.createElement('div');
+              div.className = 'tool-item';
+              div.textContent = t;
+              toolsList.appendChild(div);
+            });
+          } else {
+            toolsSection.style.display = 'none';
+          }
+        }
+      } catch (err) {
+        errorSection.style.display = 'block';
+        document.getElementById('error-msg').textContent = `Network error: ${err.message}`;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Run Agent';
+      }
+    }
+
+    document.getElementById('task').addEventListener('keydown', e => {
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) runAgent();
+    });
+  </script>
+</body>
+</html>

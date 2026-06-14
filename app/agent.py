@@ -7,7 +7,7 @@ from app.tools import TOOL_SCHEMAS, execute_tool
 load_dotenv()
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+MODEL = os.getenv("GROQ_MODEL", "llama3-groq-70b-8192-tool-use-preview")
 
 SYSTEM_PROMPT = (
     "You are a helpful AI automation agent. You have tools to read/write files, "
@@ -62,7 +62,14 @@ def run_agent(task: str, max_iterations: int = 10) -> dict:
         # Execute each tool and feed results back
         for tc in message.tool_calls:
             tool_name = tc.function.name
-            tool_args = json.loads(tc.function.arguments)
+            try:
+                tool_args = json.loads(tc.function.arguments)
+            except json.JSONDecodeError as e:
+                return {
+                    "result": f"Model generated invalid tool call arguments: {e}\nRaw: {tc.function.arguments}",
+                    "iterations": iteration,
+                    "tool_calls_made": tool_calls_made,
+                }
 
             print(f"  [Tool] {tool_name}({tool_args})")
             result = execute_tool(tool_name, tool_args)
